@@ -1,0 +1,67 @@
+def tokenize(string):
+    result = []
+    r_brace_split = string.split(")")
+    for index_r, r_brace in enumerate(r_brace_split):
+        l_brace_split = r_brace.split("(")
+        for index_l, l_brace in enumerate(l_brace_split):
+            minus_split = l_brace.split("minus")
+            for index_minus, minus in enumerate(minus_split):
+                plus_split = minus.split("plus")
+                for index_plus, plus in enumerate(plus_split):
+                    times_split = plus.split("times")
+                    for index_times, times in enumerate(times_split):
+                        divided_by_split = times.split("divided by")
+                        for index_divided_by, divided_by in enumerate(divided_by_split):
+                            result.append(divided_by)
+                            if index_divided_by is not len(divided_by_split) - 1:
+                                result.append("divided by")
+                        if index_times is not len(times_split) - 1:
+                            result.append("times")
+                    if index_plus is not len(plus_split) - 1:
+                        result.append("plus")
+                if index_minus is not len(minus_split) - 1:
+                    result.append("minus")
+            if index_l is not len(l_brace_split) - 1:
+                result.append("(")
+        if index_r is not len(r_brace_split) - 1:
+            result.append(")")
+    return delete_empty_strings(strip_strings(result))
+
+
+def strip_strings(strings):
+    return [string.strip() for string in strings]
+
+
+def delete_empty_strings(string_list):
+    return [element for element in string_list if element]
+
+
+def tokenize_rec(string, tokens):
+    if len(tokens) is 0:
+        return [string]
+    else:
+        splits = string.split(tokens[0])
+        if len(splits) is 1:
+            return [string]
+        else:
+            result = []
+            for index, split in enumerate(splits):
+                result.append(tokenize_rec(split, tokens[1:]))
+                if index is not len(splits) - 1:
+                    result.append(tokens[0])
+            return result
+
+
+def tokenize_new(string):
+    return delete_empty_strings(
+        strip_strings(
+            flatten(
+                tokenize_rec(string, ["(", ")", "times", "divided by", "plus", "minus"]))))
+
+
+def flatten(list_of_lists):
+    if len(list_of_lists) == 0:
+        return list_of_lists
+    if isinstance(list_of_lists[0], list):
+        return flatten(list_of_lists[0]) + flatten(list_of_lists[1:])
+    return list_of_lists[:1] + flatten(list_of_lists[1:])
